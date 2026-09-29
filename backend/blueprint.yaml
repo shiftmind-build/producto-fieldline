@@ -1,0 +1,82 @@
+# Producto 3 del catalogo -- Fieldline.
+#
+# El motor: moverse. Lo que hace solo es repartir los turnos del dia, aceptar el trabajo
+# capturado sin cobertura y sincronizarlo al volver, y avisar cuando un turno empieza y
+# nadie ha fichado. Esa ultima alerta es el producto: el duenyo se entera de que un sitio
+# esta sin cubrir mientras todavia puede hacer algo.
+#
+# Va como webapp y no como movil a proposito. Camara, GPS y funcionamiento sin cobertura
+# se resuelven en una PWA, y asi ninguna venta arrastra cuentas de tienda ni revisiones.
+proyecto:
+  nombre: "Fieldline"
+  formato: webapp
+  paleta: 3
+  tipografia: 3
+  efecto: 3
+  roles: [dispatcher, crew, client]
+  entidades:
+    - nombre: sites
+      campos: [client_id, nombre, direccion, lat, lng, radio_metros, activo]
+      quien_lee: "el client duenyo del sitio, y cualquier dispatcher"
+      quien_escribe: "solo dispatcher"
+      acceso:
+        lee: [{"propio": "client_id"}, {"rol": ["dispatcher"]}]
+        escribe: [{"rol": ["dispatcher"]}]
+        borra: []
+    - nombre: shifts
+      campos: [crew_id, site_id, inicio_previsto, fin_previsto, estado, publicado_en]
+      quien_lee: "el crew asignado, el client del sitio, y cualquier dispatcher"
+      quien_escribe: "dispatcher; el crew solo puede mover el estado de su propio turno"
+      acceso:
+        lee: [{"propio": "crew_id"}, {"via": ["sites", "site_id", "client_id"]}, {"rol": ["dispatcher"]}]
+        escribe: [{"rol": ["dispatcher"]}]
+        borra: []
+    - nombre: checkins
+      campos: [shift_id, tipo, momento, lat, lng, dentro_del_radio, capturado_offline]
+      quien_lee: "el crew del turno, el client del sitio y dispatcher"
+      quien_escribe: "el crew del turno, una sola vez por tipo; nunca se edita"
+      acceso:
+        lee: [{"via": ["shifts", "shift_id", "crew_id"]}, {"rol": ["dispatcher"]}]
+        escribe: [{"via": ["shifts", "shift_id", "crew_id"]}]
+        borra: []
+    - nombre: reports
+      campos: [shift_id, texto, fotos_urls, incidencia, creado_en, sincronizado_en, cliente_id_local]
+      quien_lee: "el crew que lo escribio, el client del sitio y dispatcher"
+      quien_escribe: "el crew del turno; idempotente por cliente_id_local al sincronizar"
+      acceso:
+        lee: [{"via": ["shifts", "shift_id", "crew_id"]}, {"rol": ["dispatcher"]}]
+        escribe: [{"via": ["shifts", "shift_id", "crew_id"]}]
+        borra: []
+    - nombre: alerts
+      campos: [shift_id, tipo, disparada_en, resuelta_en, resuelta_por]
+      quien_lee: "dispatcher"
+      quien_escribe: "solo el proceso programado; dispatcher unicamente la resuelve"
+      acceso:
+        lee: [{"rol": ["dispatcher"]}]
+        escribe: [{"sistema": true}]
+        borra: []
+  acciones_core:
+    - "asignar y publicar los turnos del dia"
+    - "ver mi ruta de hoy en orden desde el movil"
+    - "fichar entrada y salida con GPS y comprobar el radio del sitio"
+    - "escribir un informe con fotos sin cobertura y sincronizarlo despues"
+    - "alertar al dispatcher si pasan quince minutos del inicio sin fichaje"
+    - "que el cliente vea las visitas a sus propios sitios y nada mas"
+  pantallas:
+    - tablero del dispatcher con los turnos de hoy y sus alertas
+    - planificador semanal de turnos por persona y sitio
+    - vista del movil con la ruta de hoy
+    - fichaje e informe de un turno
+    - portal del cliente con el historial de sus sitios
+  fuera_de_alcance:
+    - optimizacion automatica de rutas
+    - seguimiento continuo de la posicion entre sitios
+    - nomina y calculo de horas extra
+    - chat entre dispatcher y crew
+    - aplicacion nativa en las tiendas
+  landing_keywords:
+    - field service management software
+    - gps time clock for crews
+    - offline field reports
+    - proof of service software
+  datos_sensibles: true

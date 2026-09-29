@@ -1,0 +1,12 @@
+# Sin esto, `gcloud run deploy --source` sube node_modules entero a Cloud Build.
+# Medido: 265MB y un despliegue colgado mas de siete minutos.
+node_modules/
+dist/
+coverage/
+*.log
+.env
+.env.*
+!.env.example
+src/tests/
+firebase-debug.log
+firestore-debug.log

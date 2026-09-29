@@ -1,0 +1,71 @@
+rules_version = '2';
+
+// Generado por la fabrica desde backend/blueprint.yaml. No se edita a mano.
+//
+// Deny by default: lo que no aparece aqui esta cerrado, y cada entidad declara
+// explicitamente quien lee, quien crea, quien edita y quien borra. Ningun
+// `allow read, write: if true`, ni siquiera temporalmente para probar.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /sites/{docId} {
+      allow read: if request.auth.uid == resource.data.client_id || request.auth.token.role in ['dispatcher'];
+      allow create: if (request.auth.token.role in ['dispatcher'])
+                       && request.resource.data.keys().hasOnly(['client_id', 'nombre', 'direccion', 'lat', 'lng', 'radio_metros', 'activo'])
+                       && request.auth != null;
+      allow update: if (request.auth.token.role in ['dispatcher'])
+                       && request.resource.data.keys().hasOnly(['client_id', 'nombre', 'direccion', 'lat', 'lng', 'radio_metros', 'activo'])
+                       && request.auth != null;
+      allow delete: if false;
+    }
+
+    match /shifts/{docId} {
+      allow read: if request.auth.uid == resource.data.crew_id || request.auth.uid == get(/databases/$(database)/documents/sites/$(resource.data.site_id)).data.client_id || request.auth.token.role in ['dispatcher'];
+      allow create: if (request.auth.token.role in ['dispatcher'])
+                       && request.resource.data.keys().hasOnly(['crew_id', 'site_id', 'inicio_previsto', 'fin_previsto', 'estado', 'publicado_en'])
+                       && request.auth != null;
+      allow update: if (request.auth.token.role in ['dispatcher'])
+                       && request.resource.data.keys().hasOnly(['crew_id', 'site_id', 'inicio_previsto', 'fin_previsto', 'estado', 'publicado_en'])
+                       && request.auth != null;
+      allow delete: if false;
+    }
+
+    match /checkins/{docId} {
+      allow read: if request.auth.uid == get(/databases/$(database)/documents/shifts/$(resource.data.shift_id)).data.crew_id || request.auth.token.role in ['dispatcher'];
+      allow create: if (request.auth.uid == get(/databases/$(database)/documents/shifts/$(request.resource.data.shift_id)).data.crew_id)
+                       && request.resource.data.keys().hasOnly(['shift_id', 'tipo', 'momento', 'lat', 'lng', 'dentro_del_radio', 'capturado_offline'])
+                       && request.auth != null;
+      allow update: if (request.auth.uid == get(/databases/$(database)/documents/shifts/$(resource.data.shift_id)).data.crew_id)
+                       && request.resource.data.keys().hasOnly(['shift_id', 'tipo', 'momento', 'lat', 'lng', 'dentro_del_radio', 'capturado_offline'])
+                       && request.auth != null;
+      allow delete: if false;
+    }
+
+    match /reports/{docId} {
+      allow read: if request.auth.uid == get(/databases/$(database)/documents/shifts/$(resource.data.shift_id)).data.crew_id || request.auth.token.role in ['dispatcher'];
+      allow create: if (request.auth.uid == get(/databases/$(database)/documents/shifts/$(request.resource.data.shift_id)).data.crew_id)
+                       && request.resource.data.keys().hasOnly(['shift_id', 'texto', 'fotos_urls', 'incidencia', 'creado_en', 'sincronizado_en', 'cliente_id_local'])
+                       && request.auth != null;
+      allow update: if (request.auth.uid == get(/databases/$(database)/documents/shifts/$(resource.data.shift_id)).data.crew_id)
+                       && request.resource.data.keys().hasOnly(['shift_id', 'texto', 'fotos_urls', 'incidencia', 'creado_en', 'sincronizado_en', 'cliente_id_local'])
+                       && request.auth != null;
+      allow delete: if false;
+    }
+
+    match /alerts/{docId} {
+      allow read: if request.auth.token.role in ['dispatcher'];
+      allow create: if (false)
+                       && request.resource.data.keys().hasOnly(['shift_id', 'tipo', 'disparada_en', 'resuelta_en', 'resuelta_por'])
+                       && request.auth != null;
+      allow update: if (false)
+                       && request.resource.data.keys().hasOnly(['shift_id', 'tipo', 'disparada_en', 'resuelta_en', 'resuelta_por'])
+                       && request.auth != null;
+      allow delete: if false;
+    }
+
+    // Cualquier coleccion no declarada en el blueprint no existe para nadie.
+    match /{documento=**} {
+      allow read, write: if false;
+    }
+  }
+}
