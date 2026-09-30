@@ -4,6 +4,7 @@ import helmet from 'helmet'
 import { initializeApp } from 'firebase-admin/app'
 import type { ErrorRequestHandler } from 'express'
 import { asyncHandler } from './lib/asyncHandler.js'
+import { montaRutas } from './rutas.js'
 
 /**
  * Fieldline -- API.
@@ -34,7 +35,7 @@ app.get(
   }),
 )
 
-// Las rutas de cada entidad se montan aqui, siempre con requireRole delante.
+montaRutas(app)
 
 const alFallar: ErrorRequestHandler = (error, _req, res, _next) => {
   const status = typeof error?.status === 'number' ? error.status : 500
