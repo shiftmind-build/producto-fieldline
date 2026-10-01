@@ -1,6 +1,7 @@
 import type { Express, Request, Response } from 'express'
 import { getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { asyncHandler } from './lib/asyncHandler.js'
+import { montaPanel } from './panel.js'
 import { requireRole, verificarAuth } from './lib/auth.js'
 import {
   sincroniza,
@@ -183,16 +184,8 @@ export function montaRutas(app: Express) {
     }),
   )
 
-  /** El tablero del dispatcher. */
-  app.get(
-    '/tablero',
-    requireRole(['dispatcher']),
-    asyncHandler(async (_req: Request, res: Response) => {
-      const db = getFirestore()
-      const abiertas = await db.collection('alerts').where('resuelta_en', '==', null).limit(100).get()
-      res.status(200).json({
-        alertas: abiertas.docs.map((d) => ({ id: d.id, ...d.data() })),
-      })
-    }),
-  )
+  // El tablero, los sitios y el detalle de un turno viven en panel.ts. El tablero
+  // devolvia solo las alertas: util cuando algo ya ha fallado, inservible para saber
+  // quien esta donde ahora mismo.
+  montaPanel(app)
 }

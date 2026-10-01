@@ -355,8 +355,10 @@ function DetalleTurnoPanel({ id, token, cierra }: { id: string; token: string; c
               es un sistema en el que nadie confia la segunda vez que pasa.
             */}
             <p style={{ margin: '8px 0 0', fontSize: '0.8rem', color: 'var(--tinta-suave)' }}>
-              Rejected entries stay on the record with the reason. Resending the same batch is
-              harmless — the phone numbers every entry, so a repeat is recognised, not doubled.
+              Whatever is listed here was accepted and stored. When an entry is turned down the
+              phone is told exactly why, in words, and keeps it — nothing is dropped in silence.
+              Resending the same batch is harmless: the phone numbers every entry, so a repeat
+              is recognised rather than doubled.
             </p>
           </div>
         </>
