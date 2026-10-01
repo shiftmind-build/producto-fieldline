@@ -4,10 +4,11 @@
   "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test:isolation": "firebase emulators:exec --only firestore --project shiftmind-fieldline \"vitest run --config backend/vitest.config.ts\"",
+    "test:isolation": "cd .. && firebase emulators:exec --only firestore --project shiftmind-fieldline \"node backend/node_modules/vitest/vitest.mjs run --config backend/vitest.config.ts backend/src/tests/isolation\"",
     "build": "tsc",
     "start": "node dist/index.js",
-    "lint": "eslint src --ext .ts"
+    "lint": "eslint src --ext .ts",
+    "test": "cd .. && firebase emulators:exec --only firestore --project shiftmind-fieldline \"node backend/node_modules/vitest/vitest.mjs run --config backend/vitest.config.ts\""
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^4.0.1",

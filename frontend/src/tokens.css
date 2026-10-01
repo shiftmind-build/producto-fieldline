@@ -1,0 +1,386 @@
+/*
+ * El kit de interfaz, compartido por los cuatro productos.
+ *
+ * Todo lo visual sale de variables CSS, y esas variables las escribe la fabrica desde
+ * design-tokens.json de cada producto. Por eso el mismo kit produce cuatro interfaces
+ * que no se parecen entre si: el codigo es identico, los valores no.
+ *
+ * Lo que NO hay aqui a proposito:
+ *
+ *   - Ningun color escrito a mano fuera de este bloque. Un `#2563EB` suelto en un
+ *     componente sobrevive al cambio de tokens y rompe el producto siguiente.
+ *   - Ninguna animacion decorativa. Esto son paneles de trabajo: una tabla que se
+ *     desliza al cargar es bonita la primera vez y molesta las trescientas siguientes.
+ *
+ * El modo oscuro no es una inversion automatica. Cada paleta trae el suyo, y si el
+ * producto es oscuro de nacimiento (Doc Intake) se queda oscuro en los dos.
+ */
+
+:root {
+  /* Los escribe la fabrica. Estos son solo el valor de reserva. */
+  --bg: #ffffff;
+  --superficie: #f7f8fa;
+  --tinta: #111827;
+  --acento: #2563eb;
+  --acento2: #6b7280;
+
+  --radio: 4px;
+  --sombra: none;
+  --duracion: 150ms;
+  --curva: ease-out;
+
+  --fuente-titular: system-ui, sans-serif;
+  --peso-titular: 600;
+  --fuente-cuerpo: system-ui, sans-serif;
+  --peso-cuerpo: 400;
+
+  /* Derivados. Se calculan del acento para que un cambio de token los arrastre. */
+  --tinta-suave: color-mix(in srgb, var(--tinta) 62%, transparent);
+  --borde: color-mix(in srgb, var(--tinta) 14%, transparent);
+  --acento-suave: color-mix(in srgb, var(--acento) 12%, transparent);
+
+  /*
+   * Los colores de estado son independientes del acento a proposito.
+   *
+   * Si "correcto" fuera el color de marca, en Fieldline (naranja) un turno cubierto se
+   * veria igual que un boton, y en Members Circle (rosa) un error se leeria como
+   * decoracion. El estado tiene que significar lo mismo en los cuatro.
+   */
+  --bien: #15803d;
+  --aviso: #b45309;
+  --mal: #b91c1c;
+  --bien-fondo: color-mix(in srgb, var(--bien) 10%, transparent);
+  --aviso-fondo: color-mix(in srgb, var(--aviso) 10%, transparent);
+  --mal-fondo: color-mix(in srgb, var(--mal) 10%, transparent);
+
+  --hueco: 16px;
+  --hueco-s: 8px;
+  --hueco-l: 28px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  /* Fondo explicito: sin el, la pagina hereda el del navegador y en modo oscuro se ve
+     texto oscuro sobre fondo oscuro. */
+  background: var(--bg);
+  color: var(--tinta);
+  font-family: var(--fuente-cuerpo);
+  font-weight: var(--peso-cuerpo);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: var(--fuente-titular);
+  font-weight: var(--peso-titular);
+  line-height: 1.2;
+  text-wrap: balance;
+  margin: 0;
+}
+
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.25rem; }
+h3 { font-size: 1rem; }
+
+/* Las cifras en columna se alinean o la tabla no se puede leer de un vistazo. */
+.cifra, td.cifra, .tabla td:last-child {
+  font-variant-numeric: tabular-nums;
+}
+
+.etiqueta {
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tinta-suave);
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------- estructura */
+
+.marco {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: 100vh;
+}
+
+@media (max-width: 760px) {
+  .marco { grid-template-columns: 1fr; }
+  .lateral { position: static; height: auto; }
+}
+
+.lateral {
+  background: var(--superficie);
+  border-right: 1px solid var(--borde);
+  padding: var(--hueco);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.principal {
+  padding: var(--hueco-l) var(--hueco);
+  max-width: 1100px;
+}
+
+.nav a {
+  display: block;
+  padding: 10px 12px;
+  border-radius: var(--radio);
+  color: var(--tinta);
+  text-decoration: none;
+  transition: background var(--duracion) var(--curva);
+}
+
+.nav a:hover { background: var(--acento-suave); }
+.nav a[aria-current='page'] { background: var(--acento); color: var(--bg); }
+
+.fila {
+  display: flex;
+  gap: var(--hueco);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.columna {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hueco);
+}
+
+/* ---------------------------------------------------------------- piezas */
+
+.tarjeta {
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: var(--hueco);
+}
+
+.boton {
+  font-family: var(--fuente-titular);
+  font-weight: var(--peso-titular);
+  font-size: 0.85rem;
+  background: var(--acento);
+  color: var(--bg);
+  border: none;
+  border-radius: var(--radio);
+  padding: 11px 18px;
+  cursor: pointer;
+  /* 44px de alto minimo: esto se usa desde un movil con guantes en Fieldline. */
+  min-height: 44px;
+  transition: filter var(--duracion) var(--curva);
+}
+
+.boton:hover { filter: brightness(1.08); }
+.boton:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.boton.secundario {
+  background: transparent;
+  color: var(--tinta);
+  border: 1px solid var(--borde);
+}
+
+.boton.peligro { background: var(--mal); }
+
+:focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 2px;
+}
+
+/* El estado se lee por forma y por texto, no solo por color: uno de cada doce hombres
+   no distingue el rojo del verde, y un panel de cobros no puede depender de eso. */
+.estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+}
+
+.estado::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.estado.bien { color: var(--bien); background: var(--bien-fondo); }
+.estado.aviso { color: var(--aviso); background: var(--aviso-fondo); }
+.estado.mal { color: var(--mal); background: var(--mal-fondo); }
+.estado.neutro { color: var(--tinta-suave); }
+
+/* ---------------------------------------------------------------- tablas */
+
+.tabla-envoltorio {
+  /* El scroll horizontal vive aqui y no en el body: si no, en un movil la pagina
+     entera se mueve de lado y no se puede leer nada. */
+  overflow-x: auto;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.tabla th {
+  text-align: left;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tinta-suave);
+  padding: 10px 14px;
+  background: var(--superficie);
+  border-bottom: 1px solid var(--borde);
+  position: sticky;
+  top: 0;
+}
+
+.tabla td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--borde);
+}
+
+.tabla tr:last-child td { border-bottom: none; }
+
+/* ---------------------------------------------------------------- estados de la pagina */
+
+.vacio {
+  padding: var(--hueco-l);
+  text-align: center;
+  color: var(--tinta-suave);
+}
+
+/*
+ * El error dice que paso y que hacer. Nunca "algo salio mal".
+ *
+ * Un mensaje generico obliga a la persona a llamar a alguien, y ese alguien eres tu.
+ */
+.error {
+  border-left: 4px solid var(--mal);
+  background: var(--mal-fondo);
+  padding: var(--hueco);
+  border-radius: var(--radio);
+}
+
+.cargando {
+  color: var(--tinta-suave);
+  padding: var(--hueco);
+}
+
+/* ---------------------------------------------------------------- demo */
+
+/*
+ * El aviso de datos inventados. Va arriba del todo y se lee: una demo que no se
+ * identifica como demo es una captura falsa con botones.
+ */
+.aviso-demo {
+  border: 1px dashed var(--borde);
+  background: var(--superficie);
+  color: var(--tinta-suave);
+  padding: 10px var(--hueco);
+  border-radius: var(--radio);
+  font-size: 0.8rem;
+  margin-bottom: var(--hueco);
+}
+
+.aviso-demo strong {
+  color: var(--tinta);
+}
+
+/* ---------------------------------------------------------------- detalle lateral */
+
+.panel {
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  background: var(--superficie);
+  box-shadow: var(--sombra);
+  /* Se queda a la vista mientras se recorre la tabla de al lado. */
+  position: sticky;
+  top: var(--hueco);
+  max-height: calc(100vh - var(--hueco) * 2);
+  overflow-y: auto;
+}
+
+.panel-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hueco);
+  padding: var(--hueco);
+  border-bottom: 1px solid var(--borde);
+  position: sticky;
+  top: 0;
+  background: var(--superficie);
+}
+
+.panel-cabecera h3 {
+  margin: 0;
+}
+
+.panel-cuerpo {
+  padding: var(--hueco);
+  display: flex;
+  flex-direction: column;
+  gap: var(--hueco);
+}
+
+/* Tabla + detalle. En movil el detalle cae debajo en vez de encogerse a nada. */
+.con-detalle {
+  display: grid;
+  gap: var(--hueco);
+  align-items: start;
+}
+
+@media (min-width: 1000px) {
+  .con-detalle {
+    grid-template-columns: minmax(0, 1fr) 22rem;
+  }
+}
+
+/*
+ * La escalera de pasos: reintentos de cobro, estados de un documento, un turno.
+ * Los tres productos la necesitan y los tres la dibujaban distinta.
+ */
+.escalera {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.escalera li {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  gap: var(--hueco-s);
+  padding: 8px 0;
+  border-bottom: 1px solid var(--borde);
+  font-size: 0.85rem;
+}
+
+.escalera li:last-child {
+  border-bottom: none;
+}
+
+.escalera time {
+  color: var(--tinta-suave);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}

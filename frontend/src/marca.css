@@ -1,0 +1,17 @@
+:root {
+  --bg: #FFF9F0;
+  --superficie: #FFFFFF;
+  --tinta: #1A1A1A;
+  --acento: #FF5A1F;
+  --acento2: #FFD23F;
+
+  --radio: 16px;
+  --sombra: 4px 4px 0 currentColor;
+  --duracion: 200ms;
+  --curva: cubic-bezier(.34,1.56,.64,1);
+
+  --fuente-titular: 'Sora', system-ui, sans-serif;
+  --peso-titular: 700;
+  --fuente-cuerpo: 'Sora', system-ui, sans-serif;
+  --peso-cuerpo: 400;
+}
